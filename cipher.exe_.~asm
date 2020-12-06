@@ -1,0 +1,164 @@
+.model small
+.stack 100h
+.data
+text db 100 dup('$')
+m db 10
+negetiveFlag db 0
+
+.code
+
+Main proc
+
+mov ax,@data
+mov ds,ax
+
+mov cx,2
+xor bx,bx
+
+mov si,offset text
+
+mov ah,1
+
+call input
+
+
+
+call NEWLINE
+
+call encrypt
+
+call print
+
+
+
+
+
+
+
+
+
+mov ah,4ch
+int 21h
+Main endp
+
+input proc
+letter:
+int 21h
+cmp al,20h
+je number
+mov [si],al
+inc si
+jmp letter
+
+
+
+number:
+mov ah,1
+int 21h
+
+cmp al,0dh
+je  negetive_number
+
+cmp al,2dh
+je mark_negetive
+
+AND AL,0FH
+JMP SHIFT
+
+
+
+SHIFT:
+mov dl,al
+mov al,bl
+mul m
+mov bl,al
+add bl,dl
+
+loop number
+
+mark_negetive:
+mov negetiveFLag,1Ah
+jmp number
+
+negetive_number:
+cmp negetiveFLag,0
+je return
+
+sub negetiveFlag,bl
+mov bl,negetiveFlag
+
+
+
+
+return:
+
+
+ret
+input endp
+
+NEWLINE PROC
+MOV AH,2
+MOV DL,0DH
+INT 21H
+
+MOV DL,0AH
+INT 21H
+RET
+NEWLINE ENDP
+
+encrypt proc
+
+
+mov ax,0
+mov si,offset text
+
+encryorionLoop:
+
+cmp [si],'$'
+
+je return2
+
+
+
+
+add [si],bl
+mov al,[si]
+cmp ax,7bh
+
+jge outofrange
+
+
+inc si
+
+jmp encryorionLoop
+
+outofrange:
+sub [si],7bh
+add [si],61h
+inc si
+
+jmp encryorionLoop
+
+
+return2:
+
+ret
+
+encrypt endp
+
+
+
+print proc
+mov dx,offset text
+
+mov ah,9
+int 21h
+ret
+print endp
+
+
+end main
+
+
+
+; [SOURCE]: E:\Microprocessor Lab\cipher.asm
